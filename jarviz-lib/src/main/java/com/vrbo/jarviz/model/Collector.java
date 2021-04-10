@@ -23,4 +23,6 @@ package com.vrbo.jarviz.model;
 public interface Collector {
 
     void collectMethodCoupling(final MethodCoupling methodCoupling);
+
+    void collectFieldCoupling(final FieldCoupling build);
 }

@@ -27,6 +27,8 @@ import com.google.common.collect.Multimap;
 import com.vrbo.jarviz.config.CouplingFilterConfig;
 import com.vrbo.jarviz.model.Collector;
 import com.vrbo.jarviz.model.CouplingFilterUtils;
+import com.vrbo.jarviz.model.Field;
+import com.vrbo.jarviz.model.FieldCoupling;
 import com.vrbo.jarviz.model.Method;
 import com.vrbo.jarviz.model.MethodCoupling;
 
@@ -36,6 +38,7 @@ public class UsageCollector implements Collector {
     private static CouplingFilterConfig DEFAULT_COUPLING_FILTER = new CouplingFilterConfig.Builder().build();
 
     private final Multimap<Method, Method> methodRefMap;
+    private final Multimap<Method, Field> fieldRefMap;
 
     private final CouplingFilterConfig couplingFilterConfig;
 
@@ -51,6 +54,7 @@ public class UsageCollector implements Collector {
 
         this.couplingFilterConfig = couplingFilterConfig;
         this.methodRefMap = LinkedHashMultimap.create();
+        this.fieldRefMap = LinkedHashMultimap.create();
     }
 
     @Override
@@ -60,8 +64,15 @@ public class UsageCollector implements Collector {
         }
     }
 
+    @Override
+    public void collectFieldCoupling(FieldCoupling coupling) {
+        if (CouplingFilterUtils.filterFieldCoupling(couplingFilterConfig, coupling)) {
+            fieldRefMap.put(coupling.getSource(), coupling.getTarget());
+        }
+    }
+
     /**
-     * Generates the efferent coupling graph for each method in the classes loaded by the class loader.
+     * Generates the efferent method coupling graph for each method in the classes loaded by the class loader.
      *
      * @return The list of method couplings.
      */
@@ -76,6 +87,27 @@ public class UsageCollector implements Collector {
 
     private static MethodCoupling mapToMethodCoupling(final Entry<Method, Method> entry) {
         return new MethodCoupling.Builder()
+                   .source(entry.getKey())
+                   .target(entry.getValue())
+                   .build();
+    }
+
+    /**
+     * Generates the efferent field coupling graph for each method in the classes loaded by the class loader.
+     *
+     * @return The list of method couplings.
+     */
+    public List<FieldCoupling> getFieldCouplings() {
+        return ImmutableList.copyOf(
+            fieldRefMap.entries().stream()
+                        .map(UsageCollector::mapToFieldCoupling)
+                        .sorted(FieldCoupling.COMPARATOR)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    private static FieldCoupling mapToFieldCoupling(final Entry<Method, Field> entry) {
+        return new FieldCoupling.Builder()
                    .source(entry.getKey())
                    .target(entry.getValue())
                    .build();

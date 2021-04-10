@@ -21,6 +21,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import com.vrbo.jarviz.model.Collector;
+import com.vrbo.jarviz.model.Field;
+import com.vrbo.jarviz.model.FieldCoupling;
 import com.vrbo.jarviz.model.Method;
 import com.vrbo.jarviz.model.MethodCoupling;
 
@@ -38,6 +40,15 @@ public class FilteredMethodVisitor extends MethodVisitor {
         super(Opcodes.ASM7, methodVisitor);
         this.sourceMethod = sourceMethod;
         this.collect = collect;
+    }
+
+    @Override
+    public void visitFieldInsn(final int opcode,
+                               final String owner,
+                               final String name,
+                               final String descriptor) {
+        super.visitFieldInsn(opcode, owner, name, descriptor);
+        handleTargetField(owner, name, descriptor);
     }
 
     @Override
@@ -71,6 +82,22 @@ public class FilteredMethodVisitor extends MethodVisitor {
             new MethodCoupling.Builder()
                 .source(sourceMethod)
                 .target(targetMethod)
+                .build()
+        );
+    }
+
+    private void handleTargetField(final String targetClassName,
+                                    final String targetFieldName,
+                                    final String targetFieldDescriptor) {
+        final Field targetField = new Field.Builder()
+                                        .className(cleanseClassName(toSourceCodeFormat(targetClassName)))
+                                        .fieldName(targetFieldName)
+                                        .build();
+
+        collect.collectFieldCoupling(
+            new FieldCoupling.Builder()
+                .source(sourceMethod)
+                .target(targetField)
                 .build()
         );
     }

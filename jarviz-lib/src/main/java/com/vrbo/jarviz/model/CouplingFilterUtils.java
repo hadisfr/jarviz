@@ -26,7 +26,7 @@ public final class CouplingFilterUtils {
     private CouplingFilterUtils() {}
 
     /**
-     * Applying a {@link CouplingFilterConfig} against a given coupling.
+     * Applying a {@link CouplingFilterConfig} against a given method coupling.
      * Include and exclude filter rules will be applied in conjunction (AND operation).
      * If the return value is true, coupling should be retained or discarded otherwise.
      *
@@ -44,6 +44,21 @@ public final class CouplingFilterUtils {
             !couplingFilterConfig.getExclude()
                                  .map(f -> matchCoupling(f, coupling))
                                  .orElse(false);
+    }
+
+    /**
+     * Applying a {@link CouplingFilterConfig} against a given field coupling.
+     * Include and exclude filter rules will be applied in conjunction (AND operation).
+     * If the return value is true, coupling should be retained or discarded otherwise.
+     *
+     * @param couplingFilterConfig The filters.
+     * @param coupling             The method coupling.
+     * @return Indicates whether the given coupling should be kept (true) or discarded (false).
+     */
+    public static boolean filterFieldCoupling(final CouplingFilterConfig couplingFilterConfig,
+                                               final FieldCoupling coupling) {
+        // TODO implement filters
+        return true;
     }
 
     /**

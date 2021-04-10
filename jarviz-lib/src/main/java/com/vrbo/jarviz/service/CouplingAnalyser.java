@@ -29,6 +29,7 @@ import com.vrbo.jarviz.model.Application;
 import com.vrbo.jarviz.model.ApplicationSet;
 import com.vrbo.jarviz.model.Artifact;
 import com.vrbo.jarviz.model.CouplingRecord;
+import com.vrbo.jarviz.model.FieldCoupling;
 import com.vrbo.jarviz.model.MethodCoupling;
 import com.vrbo.jarviz.model.ShadowClass;
 import com.vrbo.jarviz.visitor.FilteredClassVisitor;
@@ -170,10 +171,15 @@ public class CouplingAnalyser {
         }
 
         final List<MethodCoupling> couplings = usageCollector.getMethodCouplings();
-        log.info("ClassCount={}, CouplingCount={}", classesFromJarClassLoader.size(), couplings.size());
+        final List<FieldCoupling> fieldCouplings = usageCollector.getFieldCouplings();
+        log.info("ClassCount={}, MethodCouplingCount={}, FieldCouplingCount={}", classesFromJarClassLoader.size(),
+            couplings.size(), fieldCouplings.size());
 
         // Write the CouplingRecord as Json
         couplings.stream()
+                 .map(c -> toCouplingRecord(appSet, app, artifact, c))
+                 .forEach(writer::writeAsJson);
+        fieldCouplings.stream()
                  .map(c -> toCouplingRecord(appSet, app, artifact, c))
                  .forEach(writer::writeAsJson);
 
@@ -196,6 +202,25 @@ public class CouplingAnalyser {
                    .sourceMethod(methodCoupling.getSource().getMethodName())
                    .targetClass(methodCoupling.getTarget().getClassName())
                    .targetMethod(methodCoupling.getTarget().getMethodName())
+                   .build();
+    }
+
+    private static CouplingRecord toCouplingRecord(final ApplicationSet appSet,
+                                                   final Application app,
+                                                   final Artifact artifact,
+                                                   final FieldCoupling fieldCoupling) {
+        return new CouplingRecord.Builder()
+                   .appSetName(appSet.getAppSetName().orElse(""))
+                   .applicationName(app.getAppName())
+                   .artifactFileName(artifact.toFileName())
+                   .artifactId(artifact.getArtifactId())
+                   .artifactGroup(artifact.getGroupId())
+                   .artifactVersion(artifact.getVersion())
+                   .couplingType("field access")
+                   .sourceClass(fieldCoupling.getSource().getClassName())
+                   .sourceMethod(fieldCoupling.getSource().getMethodName())
+                   .targetClass(fieldCoupling.getTarget().getClassName())
+                   .targetMethod("<field-access:" + fieldCoupling.getTarget().getFieldName() + ">")
                    .build();
     }
 

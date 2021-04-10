@@ -24,6 +24,7 @@ JARVIZ_NODE_GRAPH_NPM_VERSION="${JARVIZ_CLI_VERSION}"
 JARVIZ_HOME="${HOME}/.jarviz"
 JARVIZ_JAR_FILE="jarviz_${JARVIZ_JAVA_ARTIFACT_MAVEN_VERSION}.jar"
 JARVIZ_JAR_PATH="${JARVIZ_HOME}/${JARVIZ_JAR_FILE}"
+JARVIZ_JAR_PATH="/home/hadi/Codes/research/thesis/dependency-graphs/jarviz/jarviz-lib/target/jarviz-0.1.6-SNAPSHOT-shaded.jar"
 JARVIZ_CONFIG_PATH="${JARVIZ_HOME}/config.json"
 
 JARVIZ_COMMAND_ANALYZE='analyze'
