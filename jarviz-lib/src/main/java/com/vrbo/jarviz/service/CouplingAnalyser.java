@@ -191,6 +191,7 @@ public class CouplingAnalyser {
                    .artifactId(artifact.getArtifactId())
                    .artifactGroup(artifact.getGroupId())
                    .artifactVersion(artifact.getVersion())
+                   .couplingType("method call")
                    .sourceClass(methodCoupling.getSource().getClassName())
                    .sourceMethod(methodCoupling.getSource().getMethodName())
                    .targetClass(methodCoupling.getTarget().getClassName())
