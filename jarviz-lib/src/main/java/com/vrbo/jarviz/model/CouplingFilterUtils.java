@@ -57,8 +57,14 @@ public final class CouplingFilterUtils {
      */
     public static boolean filterFieldCoupling(final CouplingFilterConfig couplingFilterConfig,
                                                final FieldCoupling coupling) {
-        // TODO implement filters
-        return true;
+        return
+            couplingFilterConfig.getInclude()
+                                .map(f -> matchCoupling(f, coupling))
+                                .orElse(true)
+            &&
+            !couplingFilterConfig.getExclude()
+                                 .map(f -> matchCoupling(f, coupling))
+                                 .orElse(false);
     }
 
     /**
@@ -72,8 +78,14 @@ public final class CouplingFilterUtils {
      */
     public static boolean filterInheritanceCoupling(final CouplingFilterConfig couplingFilterConfig,
                                                final InheritanceCoupling coupling) {
-        // TODO implement filters
-        return true;
+        return
+            couplingFilterConfig.getInclude()
+                                .map(f -> matchCoupling(f, coupling))
+                                .orElse(true)
+            &&
+            !couplingFilterConfig.getExclude()
+                                 .map(f -> matchCoupling(f, coupling))
+                                 .orElse(false);
     }
 
     /**
@@ -90,6 +102,36 @@ public final class CouplingFilterUtils {
                matchString(filter.getTargetPackagePattern(), coupling.getTarget().getPackageName()) &&
                matchString(filter.getTargetClassPattern(), coupling.getTarget().getSimpleClassName()) &&
                matchString(filter.getTargetMethodPattern(), coupling.getTarget().getMethodName());
+    }
+
+    /**
+     * Matches a given coupling to a RegEx backed {@link CouplingFilter}.
+     *
+     * @param filter   The filter.
+     * @param coupling The coupling.
+     * @return Indicates whether the given coupling should be kept (true) or discarded (false).
+     */
+    static boolean matchCoupling(final CouplingFilter filter, final FieldCoupling coupling) {
+        return matchString(filter.getSourcePackagePattern(), coupling.getSource().getPackageName()) &&
+               matchString(filter.getSourceClassPattern(), coupling.getSource().getSimpleClassName()) &&
+               matchString(filter.getSourceMethodPattern(), coupling.getSource().getMethodName()) &&
+               matchString(filter.getTargetPackagePattern(), coupling.getTarget().getPackageName()) &&
+               matchString(filter.getTargetClassPattern(), coupling.getTarget().getSimpleClassName());
+    }
+
+
+    /**
+     * Matches a given coupling to a RegEx backed {@link CouplingFilter}.
+     *
+     * @param filter   The filter.
+     * @param coupling The coupling.
+     * @return Indicates whether the given coupling should be kept (true) or discarded (false).
+     */
+    static boolean matchCoupling(final CouplingFilter filter, final InheritanceCoupling coupling) {
+        return matchString(filter.getSourcePackagePattern(), coupling.getSource().getPackageName()) &&
+               matchString(filter.getSourceClassPattern(), coupling.getSource().getSimpleClassName()) &&
+               matchString(filter.getTargetPackagePattern(), coupling.getTarget().getPackageName()) &&
+               matchString(filter.getTargetClassPattern(), coupling.getTarget().getSimpleClassName());
     }
 
     /**
