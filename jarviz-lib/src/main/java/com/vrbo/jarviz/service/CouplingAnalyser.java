@@ -105,7 +105,7 @@ public class CouplingAnalyser {
             appSetCouplingCount += analyzeApplication(appSet, application, filterConfig, classLoaderService, writer);
         }
 
-        log.info("ApplicationSet={}, TotalClassesAnalyzed={}, TotalCouplingsFound={}",
+        log.info("ApplicationSet={}, TotalClassesAnalyzed={}, TotalMethodCouplingsFound={}",
                  appSet.getAppSetName(), applicationSetClassCount.get(), appSetCouplingCount);
 
         writer.close();
@@ -138,7 +138,7 @@ public class CouplingAnalyser {
             appCouplingCount += analyzeArtifact(appSet, app, artifact, filterConfig, classLoaderService, writer);
         }
 
-        log.info("Application={}, TotalClassesAnalyzed={}, TotalCouplingsFound={}",
+        log.info("Application={}, TotalClassesAnalyzed={}, TotalMethodCouplingsFound={}",
                  app.getAppName(), applicationClassCount.get(), appCouplingCount);
 
         return appCouplingCount;
