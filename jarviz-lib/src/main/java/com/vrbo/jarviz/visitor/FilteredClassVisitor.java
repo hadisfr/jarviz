@@ -25,6 +25,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import com.vrbo.jarviz.model.Collector;
+import com.vrbo.jarviz.model.InheritanceCoupling;
+import com.vrbo.jarviz.model.JavaClass;
 import com.vrbo.jarviz.model.Method;
 
 import static com.vrbo.jarviz.util.NamingUtils.toSourceCodeFormat;
@@ -63,6 +65,41 @@ public class FilteredClassVisitor extends ClassVisitor {
      */
     public void visit() {
         reader.accept(this, 0);
+    }
+
+    @Override
+    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+        super.visit(version, access, name, signature, superName, interfaces);
+
+        final JavaClass sourceClass = new JavaClass.Builder()
+            .className(cleanseClassName(toSourceCodeFormat(name)))
+            .build();
+
+        if (superName != null) {
+            final JavaClass targetClass = new JavaClass.Builder()
+                    .className(cleanseClassName(toSourceCodeFormat(superName)))
+                    .build();
+            collect.collectInheritanceCoupling(
+                new InheritanceCoupling.Builder()
+                    .source(sourceClass)
+                    .target(targetClass)
+                    .inheritanceType(InheritanceCoupling.InheritanceType.IMPLEMENTATION)
+                    .build()
+            );
+        }
+
+        for (String javaInterface : interfaces) {
+            final JavaClass targetClass = new JavaClass.Builder()
+                .className(cleanseClassName(toSourceCodeFormat(javaInterface)))
+                .build();
+            collect.collectInheritanceCoupling(
+                new InheritanceCoupling.Builder()
+                    .source(sourceClass)
+                    .target(targetClass)
+                    .inheritanceType(InheritanceCoupling.InheritanceType.EXTENSION)
+                    .build()
+            );
+        }
     }
 
     @Override

@@ -24,5 +24,8 @@ public interface Collector {
 
     void collectMethodCoupling(final MethodCoupling methodCoupling);
 
-    void collectFieldCoupling(final FieldCoupling build);
+    void collectFieldCoupling(final FieldCoupling fieldCoupling);
+
+    void collectInheritanceCoupling(final InheritanceCoupling inheritanceCoupling);
+
 }

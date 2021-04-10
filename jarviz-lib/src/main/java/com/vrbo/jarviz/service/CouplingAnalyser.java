@@ -30,6 +30,7 @@ import com.vrbo.jarviz.model.ApplicationSet;
 import com.vrbo.jarviz.model.Artifact;
 import com.vrbo.jarviz.model.CouplingRecord;
 import com.vrbo.jarviz.model.FieldCoupling;
+import com.vrbo.jarviz.model.InheritanceCoupling;
 import com.vrbo.jarviz.model.MethodCoupling;
 import com.vrbo.jarviz.model.ShadowClass;
 import com.vrbo.jarviz.visitor.FilteredClassVisitor;
@@ -172,14 +173,19 @@ public class CouplingAnalyser {
 
         final List<MethodCoupling> couplings = usageCollector.getMethodCouplings();
         final List<FieldCoupling> fieldCouplings = usageCollector.getFieldCouplings();
-        log.info("ClassCount={}, MethodCouplingCount={}, FieldCouplingCount={}", classesFromJarClassLoader.size(),
-            couplings.size(), fieldCouplings.size());
+        final List<InheritanceCoupling> inheritanceCouplings = usageCollector.getInheritanceCouplings();
+
+        log.info("ClassCount={}, InheritanceCouplingCount={}, MethodCouplingCount={}, FieldCouplingCount={}",
+            classesFromJarClassLoader.size(), inheritanceCouplings.size(), couplings.size(), fieldCouplings.size());
 
         // Write the CouplingRecord as Json
         couplings.stream()
                  .map(c -> toCouplingRecord(appSet, app, artifact, c))
                  .forEach(writer::writeAsJson);
         fieldCouplings.stream()
+                 .map(c -> toCouplingRecord(appSet, app, artifact, c))
+                 .forEach(writer::writeAsJson);
+        inheritanceCouplings.stream()
                  .map(c -> toCouplingRecord(appSet, app, artifact, c))
                  .forEach(writer::writeAsJson);
 
@@ -221,6 +227,25 @@ public class CouplingAnalyser {
                    .sourceMethod(fieldCoupling.getSource().getMethodName())
                    .targetClass(fieldCoupling.getTarget().getClassName())
                    .targetMethod("<field-access:" + fieldCoupling.getTarget().getFieldName() + ">")
+                   .build();
+    }
+
+    private static CouplingRecord toCouplingRecord(final ApplicationSet appSet,
+                                                   final Application app,
+                                                   final Artifact artifact,
+                                                   final InheritanceCoupling inheritanceCoupling) {
+        return new CouplingRecord.Builder()
+                   .appSetName(appSet.getAppSetName().orElse(""))
+                   .applicationName(app.getAppName())
+                   .artifactFileName(artifact.toFileName())
+                   .artifactId(artifact.getArtifactId())
+                   .artifactGroup(artifact.getGroupId())
+                   .artifactVersion(artifact.getVersion())
+                   .couplingType("Inheritance: " + inheritanceCoupling.getInheritanceType().toString())
+                   .sourceClass(inheritanceCoupling.getSource().getClassName())
+                   .sourceMethod("")
+                   .targetClass(inheritanceCoupling.getTarget().getClassName())
+                   .targetMethod("")
                    .build();
     }
 

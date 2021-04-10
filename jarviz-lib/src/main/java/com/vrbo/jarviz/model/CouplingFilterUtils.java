@@ -62,6 +62,21 @@ public final class CouplingFilterUtils {
     }
 
     /**
+     * Applying a {@link CouplingFilterConfig} against a given class coupling.
+     * Include and exclude filter rules will be applied in conjunction (AND operation).
+     * If the return value is true, coupling should be retained or discarded otherwise.
+     *
+     * @param couplingFilterConfig The filters.
+     * @param coupling             The method coupling.
+     * @return Indicates whether the given coupling should be kept (true) or discarded (false).
+     */
+    public static boolean filterInheritanceCoupling(final CouplingFilterConfig couplingFilterConfig,
+                                               final InheritanceCoupling coupling) {
+        // TODO implement filters
+        return true;
+    }
+
+    /**
      * Matches a given coupling to a RegEx backed {@link CouplingFilter}.
      *
      * @param filter   The filter.
